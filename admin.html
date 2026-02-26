@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAS Admin — Invoice Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy-deep: #0b1a2e;
+  --navy: #122d4f;
+  --navy-mid: #1a3d6b;
+  --navy-light: #1e4d80;
+  --gold: #c9a84c;
+  --gold-light: #e0c36a;
+  --gold-dim: rgba(201,168,76,0.15);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.12);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.12);
+  --white: #f8f9fa;
+  --white-soft: rgba(255,255,255,0.85);
+  --text-dim: rgba(255,255,255,0.45);
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* ═══ HEADER ═══ */
+.header {
+  background: rgba(18,45,79,0.6);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-logo {
+  height: 36px;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+}
+.header-logo-text {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+.header-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  background: var(--glass);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+}
+.header-right {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ═══ LAYOUT ═══ */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* ═══ STATS ROW ═══ */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+}
+.stat-value.gold { color: var(--gold); }
+.stat-value.green { color: var(--green); }
+.stat-value.blue { color: var(--blue); }
+.stat-value.red { color: var(--red); }
+
+/* ═══ SECTION ═══ */
+.section {
+  margin-bottom: 32px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* ═══ CREATE INVOICE FORM ═══ */
+.form-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 32px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+.form-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.form-input, .form-textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+}
+.form-input::placeholder, .form-textarea::placeholder {
+  color: rgba(255,255,255,0.2);
+}
+.form-textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--navy-deep);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,168,76,0.3); }
+.btn-secondary {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--white-soft);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.08); }
+.btn-sm { padding: 8px 16px; font-size: 12px; border-radius: 8px; }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+.btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+/* ═══ GENERATED LINK MODAL ═══ */
+.link-result {
+  display: none;
+  margin-top: 20px;
+  background: rgba(52,211,153,0.06);
+  border: 1px solid rgba(52,211,153,0.15);
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+.link-result.active { display: block; }
+.link-result-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+.link-url-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.link-url {
+  flex: 1;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--white-soft);
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+}
+.btn-copy {
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(52,211,153,0.2);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.btn-copy:hover { background: rgba(52,211,153,0.2); }
+.btn-copy.copied { background: var(--green); color: var(--navy-deep); }
+
+/* ═══ INVOICE TABLE ═══ */
+.table-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.table-scroll { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  text-align: left;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 14px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  white-space: nowrap;
+}
+tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+tbody tr:last-child td { border-bottom: none; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.status-badge.pending {
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+.status-badge.paid {
+  background: var(--green-dim);
+  color: var(--green);
+}
+.status-badge.cancelled {
+  background: var(--red-dim);
+  color: var(--red);
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.amount-cell {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.action-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+.empty-state-text { font-size: 14px; }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: rgba(18,45,79,0.95);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 200;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .header { padding: 12px 16px; }
+  .main { padding: 20px 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .form-card { padding: 24px 20px; }
+  .form-actions { flex-direction: column; }
+  .btn { width: 100%; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <img src="assets/PAS_LOGO.png" class="header-logo" alt="PAS" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <span class="header-logo-text" style="display:none;">PAS</span>
+    <span class="header-badge">Admin Dashboard</span>
+  </div>
+  <div class="header-right" id="currentDate"></div>
+</div>
+
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <span class="stat-label">Total Invoices</span>
+      <span class="stat-value blue" id="statTotal">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Pending</span>
+      <span class="stat-value gold" id="statPending">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Paid</span>
+      <span class="stat-value green" id="statPaid">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Revenue Collected</span>
+      <span class="stat-value green" id="statRevenue">$0</span>
+    </div>
+  </div>
+
+  <!-- Create Invoice -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Create Invoice</h2>
+    </div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Client Name</label>
+          <input type="text" class="form-input" id="inputName" placeholder="John Smith">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client Email</label>
+          <input type="email" class="form-input" id="inputEmail" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service</label>
+          <input type="text" class="form-input" id="inputService" placeholder="Flight Booking">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount (USD)</label>
+          <input type="number" class="form-input" id="inputPrice" placeholder="2850" min="0" step="0.01">
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">Notes / Trip Details</label>
+          <textarea class="form-textarea" id="inputNotes" placeholder="NYC → London, March 15–22, Business Class, 2 passengers"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+        <button class="btn btn-primary" onclick="createInvoice()">Generate Invoice & Link</button>
+      </div>
+
+      <!-- Generated link result -->
+      <div class="link-result" id="linkResult">
+        <div class="link-result-label">✓ Invoice Created — Client Payment Link</div>
+        <div class="link-url-row">
+          <div class="link-url" id="generatedUrl"></div>
+          <button class="btn-copy" id="copyBtn" onclick="copyLink()">Copy Link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Table -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">All Invoices</h2>
+      <button class="btn btn-secondary btn-sm" onclick="loadSampleData()">Load Demo Data</button>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceTableBody">
+            <tr>
+              <td colspan="7">
+                <div class="empty-state">
+                  <div class="empty-state-icon">📋</div>
+                  <div class="empty-state-text">No invoices yet. Create one above to get started.</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// PAS ADMIN DASHBOARD
+// ═══════════════════════════════════════════════
+// Demo uses localStorage.
+// Swap to Supabase for production.
+// ═══════════════════════════════════════════════
+
+const STORAGE_KEY = 'pas_invoices';
+const BASE_URL = window.location.href.replace(/\/[^/]*$/, '/');
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+  refreshDashboard();
+});
+
+// ── Get/Set invoices ──
+function getInvoices() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+}
+function saveInvoices(invoices) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices));
+}
+
+// ── Generate invoice ID ──
+function generateId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id = 'INV-';
+  for (let i = 0; i < 6; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+}
+
+// ── Create invoice ──
+function createInvoice() {
+  const name = document.getElementById('inputName').value.trim();
+  const email = document.getElementById('inputEmail').value.trim();
+  const service = document.getElementById('inputService').value.trim();
+  const price = document.getElementById('inputPrice').value.trim();
+  const notes = document.getElementById('inputNotes').value.trim();
+
+  if (!name || !service || !price) {
+    showToast('Please fill in client name, service, and amount.', 'error');
+    return;
+  }
+
+  const invoiceId = generateId();
+  const invoices = getInvoices();
+
+  invoices[invoiceId] = {
+    client_name: name,
+    email: email,
+    service: service,
+    price: parseFloat(price),
+    notes: notes,
+    status: 'pending',
+    created_at: new Date().toISOString(),
+    paid_at: null
+  };
+
+  saveInvoices(invoices);
+
+  // Show generated link
+  const payUrl = BASE_URL + 'pay.html?invoice=' + invoiceId;
+  document.getElementById('generatedUrl').textContent = payUrl;
+  document.getElementById('linkResult').classList.add('active');
+  document.getElementById('copyBtn').textContent = 'Copy Link';
+  document.getElementById('copyBtn').classList.remove('copied');
+
+  showToast('Invoice ' + invoiceId + ' created successfully!', 'success');
+  refreshDashboard();
+
+  // ── FUTURE: Supabase version ──
+  // const { data, error } = await supabase
+  //   .from('invoices')
+  //   .insert({ invoice_id: invoiceId, client_name: name, ... });
+}
+
+// ── Copy link ──
+function copyLink() {
+  const url = document.getElementById('generatedUrl').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy Link';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ── Clear form ──
+function clearForm() {
+  document.getElementById('inputName').value = '';
+  document.getElementById('inputEmail').value = '';
+  document.getElementById('inputService').value = '';
+  document.getElementById('inputPrice').value = '';
+  document.getElementById('inputNotes').value = '';
+  document.getElementById('linkResult').classList.remove('active');
+}
+
+// ── Mark paid ──
+function markPaid(invoiceId) {
+  const invoices = getInvoices();
+  if (invoices[invoiceId]) {
+    invoices[invoiceId].status = 'paid';
+    invoices[invoiceId].paid_at = new Date().toISOString();
+    saveInvoices(invoices);
+    showToast('Invoice ' + invoiceId + ' marked as paid.', 'success');
+    refreshDashboard();
+  }
+}
+
+// ── Delete invoice ──
+function deleteInvoice(invoiceId) {
+  if (!confirm('Delete invoice ' + invoiceId + '? This cannot be undone.')) return;
+  const invoices = getInvoices();
+  delete invoices[invoiceId];
+  saveInvoices(invoices);
+  showToast('Invoice deleted.', 'success');
+  refreshDashboard();
+}
+
+// ── Copy individual link ──
+function copyInvoiceLink(invoiceId) {
+  const url = BASE_URL + 'pay.html?invoice=' + invoiceId;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('Payment link copied!', 'success');
+  });
+}
+
+// ── Refresh dashboard ──
+function refreshDashboard() {
+  const invoices = getInvoices();
+  const entries = Object.entries(invoices);
+
+  // Stats
+  const total = entries.length;
+  const pending = entries.filter(([,v]) => v.status === 'pending').length;
+  const paid = entries.filter(([,v]) => v.status === 'paid').length;
+  const revenue = entries
+    .filter(([,v]) => v.status === 'paid')
+    .reduce((sum, [,v]) => sum + (v.price || 0), 0);
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statPaid').textContent = paid;
+  document.getElementById('statRevenue').textContent = '$' + revenue.toLocaleString();
+
+  // Table
+  const tbody = document.getElementById('invoiceTableBody');
+  if (entries.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7">
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">No invoices yet. Create one above to get started.</div>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  // Sort: pending first, then by date descending
+  entries.sort((a, b) => {
+    if (a[1].status === 'pending' && b[1].status !== 'pending') return -1;
+    if (a[1].status !== 'pending' && b[1].status === 'pending') return 1;
+    return new Date(b[1].created_at) - new Date(a[1].created_at);
+  });
+
+  tbody.innerHTML = entries.map(([id, inv]) => {
+    const date = new Date(inv.created_at).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric'
+    });
+    const statusClass = inv.status === 'paid' ? 'paid' : inv.status === 'cancelled' ? 'cancelled' : 'pending';
+    const statusLabel = inv.status.charAt(0).toUpperCase() + inv.status.slice(1);
+
+    return `<tr>
+      <td style="font-family:var(--font-mono);font-size:13px;color:var(--gold);">${id}</td>
+      <td><strong>${inv.client_name}</strong>${inv.email ? '<br><span style="font-size:12px;color:var(--text-dim);">'+inv.email+'</span>' : ''}</td>
+      <td>${inv.service}${inv.notes ? '<br><span style="font-size:12px;color:var(--text-dim);white-space:normal;max-width:200px;display:inline-block;">'+inv.notes+'</span>' : ''}</td>
+      <td class="amount-cell">$${parseFloat(inv.price).toLocaleString()}</td>
+      <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusLabel}</span></td>
+      <td style="color:var(--text-dim);font-size:13px;">${date}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-secondary btn-sm" onclick="copyInvoiceLink('${id}')" title="Copy Link">🔗</button>
+          ${inv.status === 'pending' ? `<button class="btn btn-sm" style="background:var(--green-dim);color:var(--green);border:1px solid rgba(52,211,153,0.2);" onclick="markPaid('${id}')" title="Mark Paid">✓</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteInvoice('${id}')" title="Delete">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Load sample data ──
+function loadSampleData() {
+  const invoices = getInvoices();
+  const samples = {
+    'INV-A3F72K': {
+      client_name: 'Sarah Johnson',
+      email: 'sarah.j@gmail.com',
+      service: 'Flight Booking',
+      price: 4200,
+      notes: 'NYC → London, Apr 10–18, Business Class',
+      status: 'pending',
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      paid_at: null
+    },
+    'INV-D8M91P': {
+      client_name: 'Michael Chen',
+      email: 'mchen@outlook.com',
+      service: 'Hotel Package',
+      price: 1850,
+      notes: 'Four Seasons Maui, 5 nights',
+      status: 'paid',
+      created_at: new Date(Date.now() - 259200000).toISOString(),
+      paid_at: new Date(Date.now() - 172800000).toISOString()
+    },
+    'INV-R5W64B': {
+      client_name: 'Emily Davis',
+      email: 'emily.d@yahoo.com',
+      service: 'Full Trip Package',
+      price: 7500,
+      notes: 'Bali honeymoon: flights + villa + activities, 10 days',
+      status: 'pending',
+      created_at: new Date(Date.now() - 43200000).toISOString(),
+      paid_at: null
+    }
+  };
+
+  Object.assign(invoices, samples);
+  saveInvoices(invoices);
+  showToast('Demo data loaded!', 'success');
+  refreshDashboard();
+}
+
+// ── Toast ──
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast ' + type + ' show';
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

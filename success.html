@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Confirmed — PAS Concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy-deep: #0b1a2e;
+  --navy: #122d4f;
+  --gold: #c9a84c;
+  --green: #34d399;
+  --green-soft: #6ee7b7;
+  --green-dim: rgba(52,211,153,0.1);
+  --white: #f8f9fa;
+  --white-soft: rgba(255,255,255,0.85);
+  --text-dim: rgba(255,255,255,0.4);
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.08);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(52,211,153,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.accent-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--green), var(--green-soft), var(--green));
+  z-index: 100;
+}
+
+.success-card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 500px;
+  background: linear-gradient(165deg, rgba(18,45,79,0.85), rgba(11,26,46,0.95));
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 48px 36px 36px;
+  text-align: center;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.3);
+  animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ═══ CHECKMARK ═══ */
+.check-wrap {
+  width: 76px; height: 76px; margin: 0 auto 24px;
+  animation: fadeIn 0.4s 0.2s both;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.check-circle {
+  width: 76px; height: 76px; border-radius: 50%;
+  background: var(--green-dim);
+  border: 2px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  animation: scaleIn 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+.check-icon {
+  width: 34px; height: 34px; color: var(--green);
+  stroke-dasharray: 50; stroke-dashoffset: 50;
+  animation: drawCheck 0.5s 0.7s ease-out forwards;
+}
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+.success-title {
+  font-family: var(--font-display);
+  font-size: 24px; font-weight: 600; margin-bottom: 6px;
+  animation: fadeUp 0.5s 0.5s both;
+}
+.success-subtitle {
+  font-size: 14px; color: var(--text-dim); margin-bottom: 28px;
+  animation: fadeUp 0.5s 0.6s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══ RECEIPT ═══ */
+.receipt-box {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: left; margin-bottom: 24px;
+  animation: fadeUp 0.5s 0.7s both;
+}
+.receipt-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.receipt-row:last-child { border-bottom: none; }
+.receipt-label {
+  font-size: 11px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.receipt-value {
+  font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500;
+}
+
+.receipt-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 12px 0 2px; margin-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.receipt-total .receipt-label { font-size: 12px; color: var(--green); }
+.receipt-total .receipt-value {
+  font-size: 20px; font-family: var(--font-display);
+  font-weight: 700; color: var(--white);
+}
+
+.confirm-msg {
+  font-size: 12px; color: rgba(255,255,255,0.3);
+  line-height: 1.7;
+  animation: fadeUp 0.5s 0.8s both;
+}
+
+.back-link {
+  display: inline-block; margin-top: 24px;
+  padding: 10px 24px; border-radius: 10px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  color: rgba(255,255,255,0.5);
+  font-size: 13px; font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  animation: fadeUp 0.5s 0.9s both;
+}
+.back-link:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+}
+
+.contact-bar {
+  text-align: center; margin-top: 28px;
+  font-size: 12px; color: rgba(255,255,255,0.2);
+  animation: fadeUp 0.5s 1s both;
+}
+.contact-bar a { color: rgba(255,255,255,0.3); text-decoration: none; }
+
+.credit {
+  text-align: center; margin-top: 16px;
+  font-size: 11px; color: rgba(255,255,255,0.12);
+}
+.credit a { color: rgba(201,168,76,0.3); text-decoration: none; }
+
+@media (max-width: 520px) {
+  .success-card { padding: 36px 22px 28px; }
+  .success-title { font-size: 21px; }
+}
+</style>
+</head>
+<body>
+<div class="accent-bar"></div>
+
+<div class="success-card">
+  <div class="check-wrap">
+    <div class="check-circle">
+      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+  </div>
+
+  <h1 class="success-title">Payment Confirmed</h1>
+  <p class="success-subtitle">Thank you — your payment has been received.</p>
+
+  <div class="receipt-box">
+    <div class="receipt-row">
+      <span class="receipt-label">Client</span>
+      <span class="receipt-value" id="clientName">Sarah Johnson</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Service</span>
+      <span class="receipt-value" id="serviceName">Flight Booking</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Invoice</span>
+      <span class="receipt-value" id="invoiceId">PAS-10482</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Date</span>
+      <span class="receipt-value" id="paidDate">—</span>
+    </div>
+    <div class="receipt-total">
+      <span class="receipt-label">Amount Paid</span>
+      <span class="receipt-value" id="amountPaid">$4,000</span>
+    </div>
+  </div>
+
+  <p class="confirm-msg">
+    A confirmation receipt will be sent to your email.<br>
+    If you have questions, contact PAS Concierge directly.
+  </p>
+
+  <a href="index.html" class="back-link">← Back to PAS Concierge</a>
+</div>
+
+<div class="contact-bar">
+  PAS Concierge · <a href="tel:+13322336860">+1 (332) 233-6860</a> · <a href="mailto:office@pasconcierge.com">office@pasconcierge.com</a>
+</div>
+
+<div class="credit">Demo concept by <a href="#">Tyler Peller</a></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date as default
+  const today = new Date().toLocaleDateString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric'
+  });
+  document.getElementById('paidDate').textContent = today;
+
+  // Check for dynamic invoice from URL
+  const params = new URLSearchParams(window.location.search);
+  const invoiceId = params.get('invoice');
+  if (!invoiceId) return; // Use demo defaults
+
+  const invoices = JSON.parse(localStorage.getItem('pas_invoices') || '{}');
+  const inv = invoices[invoiceId];
+  if (!inv) return;
+
+  document.getElementById('clientName').textContent = inv.client_name;
+  document.getElementById('serviceName').textContent = inv.service;
+  document.getElementById('invoiceId').textContent = invoiceId;
+  document.getElementById('amountPaid').textContent = '$' + parseFloat(inv.price).toLocaleString();
+
+  const paidDate = inv.paid_at ? new Date(inv.paid_at) : new Date();
+  document.getElementById('paidDate').textContent = paidDate.toLocaleDateString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric'
+  });
+});
+</script>
+</body>
+</html>

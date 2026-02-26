@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAS Concierge — Secure Payment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy-deep: #0b1a2e;
+  --navy: #122d4f;
+  --navy-mid: #1a3d6b;
+  --gold: #c9a84c;
+  --gold-light: #e0c36a;
+  --gold-dim: #a08230;
+  --white: #f8f9fa;
+  --white-soft: rgba(255,255,255,0.85);
+  --text-dim: rgba(255,255,255,0.4);
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.08);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ambient glows */
+body::before {
+  content: '';
+  position: fixed; top: -30%; right: -20%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; bottom: -20%; left: -10%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(26,61,107,0.25) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* Gold accent bar */
+.accent-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light), var(--gold));
+  z-index: 100;
+}
+
+/* ═══ CARD ═══ */
+.payment-card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 500px;
+  background: linear-gradient(165deg, rgba(18,45,79,0.85) 0%, rgba(11,26,46,0.95) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 44px 36px 36px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 4px 32px rgba(0,0,0,0.3),
+    0 0 80px rgba(201,168,76,0.03),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ═══ LOGO ═══ */
+.logo-wrap {
+  text-align: center; margin-bottom: 28px;
+  animation: fadeUp 0.6s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.logo-wrap img {
+  max-width: 140px; height: auto;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+}
+.logo-fallback {
+  font-family: var(--font-display);
+  font-size: 24px; font-weight: 600;
+  color: var(--gold); letter-spacing: 2px;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══ HEADER ═══ */
+.page-label {
+  text-align: center; font-size: 10px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 3px;
+  color: var(--gold); margin-bottom: 4px;
+  animation: fadeUp 0.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.page-title {
+  text-align: center; font-family: var(--font-display);
+  font-size: 22px; font-weight: 600;
+  margin-bottom: 6px;
+  animation: fadeUp 0.6s 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.page-subtitle {
+  text-align: center; font-size: 13px;
+  color: var(--text-dim); margin-bottom: 28px;
+  animation: fadeUp 0.6s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══ INVOICE DETAILS ═══ */
+.invoice-details {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  animation: fadeUp 0.6s 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.detail-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.detail-row:last-child { border-bottom: none; }
+
+.detail-label {
+  font-size: 11px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1.2px; font-weight: 500;
+}
+.detail-value {
+  font-size: 14px; font-weight: 500;
+  color: var(--white-soft); text-align: right; max-width: 60%;
+}
+.detail-value.mono {
+  font-family: var(--font-mono); font-size: 13px; color: var(--gold);
+}
+
+/* ═══ LINE ITEMS ═══ */
+.line-items {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  animation: fadeUp 0.6s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.line-item {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.line-item:last-of-type { border-bottom: none; }
+.line-item-name { font-size: 14px; color: rgba(255,255,255,0.65); }
+.line-item-price { font-family: var(--font-mono); font-size: 14px; color: var(--white-soft); }
+
+.line-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 14px 0 4px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.line-total-label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim); font-weight: 500;
+}
+.line-total-value {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 700; color: var(--white);
+}
+.line-total-value .currency {
+  font-size: 18px; vertical-align: super; margin-right: 2px; color: var(--gold);
+}
+
+/* ═══ NOTICE ═══ */
+.payment-notice {
+  font-size: 12px; color: rgba(255,255,255,0.3);
+  text-align: center; line-height: 1.6;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══ PAY BUTTON ═══ */
+.pay-btn {
+  display: block; width: 100%; padding: 18px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--navy-deep); border: none; border-radius: 14px;
+  font-family: var(--font-body); font-size: 16px; font-weight: 700;
+  letter-spacing: 0.3px; cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.2);
+  animation: fadeUp 0.6s 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative; overflow: hidden;
+}
+.pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(201,168,76,0.3);
+}
+.pay-btn:active { transform: translateY(0); }
+.pay-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+  transform: translateX(-100%); transition: transform 0.6s;
+}
+.pay-btn:hover::after { transform: translateX(100%); }
+
+/* ═══ DEMO BADGE ═══ */
+.demo-badge {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; margin-top: 14px;
+  font-size: 11px; color: rgba(201,168,76,0.5);
+  animation: fadeUp 0.6s 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.demo-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(201,168,76,0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ═══ SECURITY FOOTER ═══ */
+.security-footer {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; margin-top: 18px;
+  font-size: 11px; color: rgba(255,255,255,0.25);
+  animation: fadeUp 0.6s 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.lock-icon { width: 11px; height: 11px; opacity: 0.35; }
+
+.security-brands {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px; margin-top: 8px;
+  font-size: 11px; color: rgba(255,255,255,0.2);
+  animation: fadeUp 0.6s 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══ INVOICE REF ═══ */
+.ref-line {
+  text-align: center; margin-top: 14px;
+  font-size: 11px; color: rgba(255,255,255,0.15);
+  font-family: var(--font-mono);
+  animation: fadeUp 0.6s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══ CONTACT BAR ═══ */
+.contact-bar {
+  text-align: center; margin-top: 28px;
+  font-size: 12px; color: rgba(255,255,255,0.2);
+  animation: fadeUp 0.6s 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.contact-bar a {
+  color: rgba(255,255,255,0.3); text-decoration: none;
+  transition: color 0.2s;
+}
+.contact-bar a:hover { color: rgba(255,255,255,0.5); }
+
+.credit {
+  text-align: center; margin-top: 24px;
+  font-size: 11px; color: rgba(255,255,255,0.12);
+  animation: fadeUp 0.6s 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.credit a { color: rgba(201,168,76,0.3); text-decoration: none; }
+
+/* ═══ LOADING OVERLAY ═══ */
+.loading-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(11,26,46,0.92); border-radius: 24px;
+  z-index: 10; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+}
+.loading-overlay.active { display: flex; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--glass-border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: var(--white-soft); }
+
+/* ═══ ERROR STATE ═══ */
+.error-card {
+  display: none; text-align: center; padding: 50px 30px;
+}
+.error-card.active { display: block; }
+.error-icon { font-size: 42px; margin-bottom: 14px; }
+.error-title { font-family: var(--font-display); font-size: 20px; margin-bottom: 8px; }
+.error-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 520px) {
+  .payment-card { padding: 32px 22px 28px; border-radius: 20px; }
+  .line-total-value { font-size: 24px; }
+  .page-title { font-size: 19px; }
+  .detail-value { max-width: 55%; }
+}
+</style>
+</head>
+<body>
+<div class="accent-bar"></div>
+
+<div class="payment-card" id="paymentCard">
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading invoice…</div>
+  </div>
+
+  <!-- Error state (hidden by default) -->
+  <div class="error-card" id="errorCard">
+    <div class="error-icon">⚠️</div>
+    <div class="error-title">Invoice Not Found</div>
+    <div class="error-text">This payment link is invalid or has expired.<br>Please contact PAS Concierge for assistance.</div>
+  </div>
+
+  <!-- Main invoice content -->
+  <div id="invoiceContent">
+    <div class="logo-wrap">
+      <img src="assets/PAS_LOGO.png" alt="PAS Concierge"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="logo-fallback" style="display:none;">PAS CONCIERGE</div>
+    </div>
+
+    <div class="page-label">Secure Invoice Payment</div>
+    <h1 class="page-title" id="pageTitle">Secure Invoice Payment</h1>
+    <p class="page-subtitle">Please review your invoice below and complete payment securely.<br>PAS Concierge never stores your card details.</p>
+
+    <!-- Client & trip details -->
+    <div class="invoice-details">
+      <div class="detail-row">
+        <span class="detail-label">Invoice</span>
+        <span class="detail-value mono" id="invoiceId">PAS-10482</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Client</span>
+        <span class="detail-value" id="clientName">Sarah Johnson</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Trip</span>
+        <span class="detail-value" id="tripDetails">NYC → London</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Due</span>
+        <span class="detail-value" id="dueDate">Mar 5, 2026</span>
+      </div>
+    </div>
+
+    <!-- Line items with breakdown -->
+    <div class="line-items">
+      <div class="line-item">
+        <span class="line-item-name" id="item1Name">International Flights (2 adults)</span>
+        <span class="line-item-price" id="item1Price">$3,820.00</span>
+      </div>
+      <div class="line-item">
+        <span class="line-item-name" id="item2Name">Concierge Service Fee</span>
+        <span class="line-item-price" id="item2Price">$180.00</span>
+      </div>
+      <div class="line-total">
+        <span class="line-total-label">Total Due</span>
+        <span class="line-total-value"><span class="currency">$</span><span id="totalAmount">4,000</span></span>
+      </div>
+    </div>
+
+    <p class="payment-notice">
+      By completing payment, you acknowledge acceptance of the itinerary,
+      pricing, and applicable cancellation and refund terms.
+      A receipt will be emailed automatically.
+    </p>
+
+    <button class="pay-btn" id="payBtn" onclick="handlePay()">
+      Pay $4,000 Securely
+    </button>
+
+    <div class="demo-badge">
+      <span class="demo-dot"></span>
+      <span>Demo · Test mode</span>
+    </div>
+
+    <div class="security-footer">
+      <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <span>Payments processed securely by Stripe</span>
+    </div>
+
+    <div class="security-brands">
+      Visa · Mastercard · AmEx
+    </div>
+
+    <div class="ref-line">
+      Reference: <span id="refId">PAS-10482</span> (locked amount)
+    </div>
+  </div>
+</div>
+
+<div class="contact-bar">
+  PAS Concierge · <a href="tel:+13322336860">+1 (332) 233-6860</a> · <a href="mailto:office@pasconcierge.com">office@pasconcierge.com</a>
+</div>
+
+<div class="credit">Demo concept by <a href="#">Tyler Peller</a></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// PAYMENT PAGE LOGIC
+// ═══════════════════════════════════════════════
+// Checks for ?invoice= param in URL.
+// If present → tries to load from localStorage (admin-created invoices).
+// If absent → shows hardcoded demo invoice (what you see now).
+// In production → fetches from Supabase.
+// ═══════════════════════════════════════════════
+
+const DEMO_INVOICE = {
+  invoice_id: 'PAS-10482',
+  client_name: 'Sarah Johnson',
+  service: 'Flight Booking',
+  trip: 'NYC → London',
+  due: 'Mar 5, 2026',
+  items: [
+    { name: 'International Flights (2 adults)', price: 3820 },
+    { name: 'Concierge Service Fee', price: 180 }
+  ],
+  price: 4000,
+  notes: 'Business Class, Apr 10–18',
+  status: 'pending'
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const invoiceParam = params.get('invoice');
+
+  if (invoiceParam) {
+    loadInvoiceFromStorage(invoiceParam);
+  }
+  // else: demo data already hardcoded in HTML — nothing to do
+});
+
+function loadInvoiceFromStorage(invoiceId) {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('active');
+
+  setTimeout(() => {
+    const invoices = JSON.parse(localStorage.getItem('pas_invoices') || '{}');
+    const inv = invoices[invoiceId];
+    overlay.classList.remove('active');
+
+    if (!inv) {
+      document.getElementById('invoiceContent').style.display = 'none';
+      document.getElementById('errorCard').classList.add('active');
+      return;
+    }
+
+    if (inv.status === 'paid') {
+      window.location.href = 'success.html?invoice=' + invoiceId;
+      return;
+    }
+
+    // Populate from stored invoice
+    const price = parseFloat(inv.price);
+    const formatted = price.toLocaleString('en-US');
+
+    document.getElementById('invoiceId').textContent = invoiceId;
+    document.getElementById('refId').textContent = invoiceId;
+    document.getElementById('clientName').textContent = inv.client_name;
+    document.getElementById('tripDetails').textContent = inv.notes || inv.service;
+    document.getElementById('pageTitle').textContent = 'Secure Invoice Payment';
+
+    // Simplify line items for dynamic invoices
+    document.getElementById('item1Name').textContent = inv.service;
+    document.getElementById('item1Price').textContent = '$' + formatted;
+    document.getElementById('item2Name').parentElement.style.display = 'none';
+    document.getElementById('totalAmount').textContent = formatted;
+
+    document.getElementById('payBtn').textContent = 'Pay $' + formatted + ' Securely';
+  }, 500);
+}
+
+function handlePay() {
+  const btn = document.getElementById('payBtn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Processing…';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  btn.style.cursor = 'not-allowed';
+
+  // Check for dynamic invoice
+  const params = new URLSearchParams(window.location.search);
+  const invoiceId = params.get('invoice');
+
+  setTimeout(() => {
+    if (invoiceId) {
+      // Mark paid in localStorage
+      const invoices = JSON.parse(localStorage.getItem('pas_invoices') || '{}');
+      if (invoices[invoiceId]) {
+        invoices[invoiceId].status = 'paid';
+        invoices[invoiceId].paid_at = new Date().toISOString();
+        localStorage.setItem('pas_invoices', JSON.stringify(invoices));
+      }
+      window.location.href = 'success.html?invoice=' + invoiceId;
+    } else {
+      // Demo mode → go to success with demo data
+      window.location.href = 'success.html';
+    }
+  }, 1400);
+
+  // ── PRODUCTION: Stripe Checkout ──
+  // const res = await fetch('/api/create-checkout', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ invoice_id: invoiceId })
+  // });
+  // const { sessionId } = await res.json();
+  // const stripe = Stripe('pk_live_...');
+  // stripe.redirectToCheckout({ sessionId });
+}
+</script>
+</body>
+</html>

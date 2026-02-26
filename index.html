@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAS Concierge — Premium Travel Services</title>
+<meta name="description" content="PAS Concierge — Personalized travel planning and concierge services.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy-deep: #0b1a2e;
+  --navy: #122d4f;
+  --gold: #c9a84c;
+  --gold-light: #e0c36a;
+  --white: #f8f9fa;
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.08);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -30%; right: -15%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -25%; left: -10%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(26,61,107,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.accent-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, rgba(201,168,76,0.4), var(--gold), var(--gold-light), var(--gold));
+  z-index: 100;
+}
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 520px; text-align: center;
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo {
+  max-width: 180px; height: auto; margin-bottom: 32px;
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.3));
+}
+.logo-fallback {
+  font-family: var(--font-display);
+  font-size: 36px; font-weight: 700;
+  color: var(--gold); letter-spacing: 3px;
+  margin-bottom: 32px;
+}
+
+.tagline {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 3px;
+  color: var(--gold); margin-bottom: 20px; font-weight: 500;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 32px; font-weight: 600;
+  margin-bottom: 16px; line-height: 1.3;
+}
+
+.subtitle {
+  font-size: 15px; color: rgba(255,255,255,0.5);
+  line-height: 1.7; margin-bottom: 12px;
+}
+
+.divider {
+  width: 40px; height: 2px;
+  background: var(--gold); margin: 32px auto;
+  opacity: 0.4;
+}
+
+.nav-links {
+  display: flex; gap: 12px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 32px;
+}
+.nav-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: 12px;
+  font-size: 14px; font-weight: 600;
+  text-decoration: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link.primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--navy-deep);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.2);
+}
+.nav-link.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(201,168,76,0.3);
+}
+.nav-link.secondary {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: rgba(255,255,255,0.7);
+}
+.nav-link.secondary:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+}
+
+.contact-info {
+  font-size: 13px; color: rgba(255,255,255,0.3);
+  line-height: 2;
+}
+.contact-info a {
+  color: rgba(201,168,76,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.contact-info a:hover { color: var(--gold); }
+
+.credit {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px; color: rgba(255,255,255,0.15);
+}
+.credit a { color: rgba(201,168,76,0.3); text-decoration: none; }
+
+@media (max-width: 480px) {
+  h1 { font-size: 26px; }
+  .nav-links { flex-direction: column; }
+  .nav-link { justify-content: center; }
+}
+</style>
+</head>
+<body>
+<div class="accent-bar"></div>
+
+<div class="container">
+  <img src="assets/PAS_LOGO.png" class="logo" alt="PAS Concierge"
+       onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+  <div class="logo-fallback" id="logoFallback" style="display:none;">PAS CONCIERGE</div>
+
+  <div class="tagline">Concierge Travel Services</div>
+  <h1>Premium Travel, Personally Crafted</h1>
+  <p class="subtitle">
+    Personalized travel planning and concierge services,<br>tailored to your journey.
+  </p>
+
+  <div class="divider"></div>
+
+  <div class="nav-links">
+    <a href="pay.html" class="nav-link primary">View Demo Invoice</a>
+    <a href="admin.html" class="nav-link secondary">Admin Dashboard</a>
+  </div>
+
+  <div class="contact-info">
+    <a href="tel:+13322336860">+1 (332) 233-6860</a> · <a href="mailto:office@pasconcierge.com">office@pasconcierge.com</a>
+  </div>
+</div>
+
+<div class="credit">Demo concept by <a href="#">Tyler Peller</a></div>
+</body>
+</html>
